@@ -5,19 +5,25 @@ import re
 
 def to_txt_file(string_list, file_name):
     print(file_name)
-    with open('txt_files/'+re.sub('[^A-Za-zА-Яа-я0-9 ]+', '', file_name)+'.txt', 'w', encoding='utf-8') as f:
+    with open('txt_files/'+file_name.replace('\"', '').replace('/', '').replace(':', '').replace('?', '')+'.txt', 'w', encoding='utf-8') as f:
         for line in string_list:
             f.write(line+'\n')
 
 
-for i in range(1, 10):
-    url = 'https://sport.ua/uk/news/football?page='+str(i)
+articles_added = 0
+current_page = 1
+
+
+while articles_added < 200:
+    url = 'https://sport.ua/uk/news/football?page='+str(current_page)
     response = requests.get(url)
 
     soup = BeautifulSoup(response.content, 'html.parser')
     s = soup.find('div', class_='team-news-line')
 
     links = set(filter(lambda x: x.startswith('https://sport.ua'), list(map(lambda x: x.get('href'), s.find_all('a')))))
+
+    current_page += 1
 
     for link in links:
         r = requests.get(link)
@@ -27,3 +33,4 @@ for i in range(1, 10):
         if s:
             content = list(map(lambda x: x.get_text(), s.find_all('p')))
             to_txt_file(content, article_name)
+            articles_added += 1

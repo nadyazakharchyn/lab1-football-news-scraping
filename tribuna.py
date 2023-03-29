@@ -10,12 +10,18 @@ def to_txt_file(string_list, file_name):
             f.write(line+'\n')
 
 
-for i in range(1, 10):
-    url = 'https://ua.tribuna.com/uk/football/news/page'+str(i)+'/'
+articles_added = 0
+current_page = 1
+
+while articles_added < 200:
+    url = 'https://ua.tribuna.com/uk/football/news/page'+str(current_page)+'/'
     response = requests.get(url)
     soup = BeautifulSoup(response.content, 'html.parser')
     s = soup.find('div', class_=re.compile("^NewsFeed_news-feed__news"))
     links = set(map(lambda x: 'https://ua.tribuna.com'+x.get('href'), s.find_all('a')))
+
+    current_page += 1
+
     for link in links:
         try:
             r = requests.get(link)
@@ -25,6 +31,8 @@ for i in range(1, 10):
             if s:
                 content = list(map(lambda x: x.get_text(), s.find_all('p')))
                 to_txt_file(content, article_name)
+                articles_added += 1
         except Exception as ex:
             print("Oh shit: "+link)
             print(ex)
+
