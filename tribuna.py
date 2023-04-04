@@ -1,11 +1,13 @@
+import hashlib
+
 import requests
 from bs4 import BeautifulSoup
 import re
 
 
-def to_txt_file(string_list, file_name):
-    print(file_name)
-    with open('txt_files/'+file_name.replace('\"', '').replace('/', '').replace(':', '').replace('?', '')+'.txt', 'w', encoding='utf-8') as f:
+def to_txt_file(string_list, link, article_name):
+    with open('txt_files/'+hashlib.sha256(str(link).encode('utf-8')).hexdigest()+'.txt', 'w', encoding='utf-8') as f:
+        f.write(article_name + '\n\n')
         for line in string_list:
             f.write(line+'\n')
 
@@ -30,7 +32,7 @@ while articles_added < 200:
             article_name = soup.find(class_='header__title').get_text()
             if s:
                 content = list(map(lambda x: x.get_text(), s.find_all('p')))
-                to_txt_file(content, article_name)
+                to_txt_file(content, link, article_name)
                 articles_added += 1
         except Exception as ex:
             print("Oh shit: "+link)
